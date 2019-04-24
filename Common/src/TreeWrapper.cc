@@ -309,6 +309,20 @@ TreeWrapper::AutoSavedObject::operator=( TObject* obj ) {
 }
 
 
+TreeWrapper::AutoSavedObject&
+TreeWrapper::AutoSavedObject::operator=( std::vector<TObject*>* vObj ) {
+  for(auto it = vObj->begin(); it != vObj->end(); it++){
+    objectList.push_back( *it );
+    std::string type = (*it)->ClassName();
+    if ( type.substr( 0, 10 ) == "TDirectory" ) 
+      dynamic_cast<TDirectory*>( *it )->cd();
+    else if ( *it == gROOT )
+      gROOT->cd();
+  }
+  return *this;
+}
+
+
 TreeWrapper::AutoSavedObject::obj_iter
 TreeWrapper::AutoSavedObject::objBegin() {
   return objectList.begin();
@@ -438,6 +452,7 @@ bool TreeWrapper::writable( const TObject* obj ) {
 bool TreeWrapper::writable( const std::string& type ) {
   if ( type.substr( 0, 2 ) == "TH"       ) return true;
   if ( type                == "TProfile" ) return true;
+  if ( type                == "TCanvas"  ) return true;
   return false;
 }
 
